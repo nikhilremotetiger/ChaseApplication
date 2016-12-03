@@ -12,7 +12,7 @@
 #import "MapAnnotation.h"
 #import "MapAnnotationView.h"
 
-@interface MainViewController () <DownloaderDelegate, UITableViewDelegate, UITableViewDataSource, MKMapViewDelegate> {
+@interface MainViewController () <DownloaderDelegate, UITableViewDelegate, UITableViewDataSource, MKMapViewDelegate, CLLocationManagerDelegate> {
     NSMutableArray *atms;
     NSMutableArray *branches;
     
@@ -24,6 +24,8 @@
 @property (weak, nonatomic) IBOutlet UISegmentedControl *atmBranchSegment;
 @property (weak, nonatomic) IBOutlet MKMapView *bankMaps;
 @property (weak, nonatomic) IBOutlet UIButton *mapListBtn;
+
+@property (nonatomic, strong) CLLocationManager *locationManager;
 
 @end
 
@@ -37,8 +39,13 @@
 }
 
 - (IBAction)getCurrentLocation:(id)sender {
-    
+    self.locationManager = [[CLLocationManager alloc] init];
+    self.locationManager.delegate = self;
+    if([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]){
+        [self.locationManager requestWhenInUseAuthorization];
+    }
 }
+
 
 - (IBAction)togleMap:(id)sender {
     if(self.bankMaps.hidden){
@@ -146,6 +153,23 @@
 - (nullable MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation {
     MapAnnotationView *view = [[MapAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:@"pin"];
     return view;
+}
+
+#pragma mark - CLLocationManager Delegate
+
+- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
+    if(status == kCLAuthorizationStatusAuthorizedWhenInUse){
+        [self.locationManager startUpdatingLocation];
+    }
+}
+
+- (void)locationManager:(CLLocationManager *)manager
+     didUpdateLocations:(NSArray<CLLocation *> *)locations{
+    [self.locationManager stopUpdatingLocation];
+    
+    CLLocation *location = [locations firstObject];
+    
+    Downloader *downloader = [[Downloader alloc] initWithLocation:location withDelegate:self];
 }
 
 

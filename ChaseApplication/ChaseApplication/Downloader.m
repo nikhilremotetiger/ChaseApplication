@@ -30,6 +30,18 @@
     return self;
 }
 
+
+- (instancetype)initWithLocation:(CLLocation *) location
+                    withDelegate:(id<DownloaderDelegate>) delegate {
+    self = [super init];
+    if (self) {
+        self.delegate = delegate;
+        [self downloadDataForLocation:location];
+    }
+    return self;
+}
+
+
 -(void) downloadDataForLocation:(CLLocation *) location {
     
     NSString *urlString = [NSString stringWithFormat:@"https://m.chase.com/PSRWeb/location/list.action?lat=%f&lng=%f",location.coordinate.latitude, location.coordinate.longitude];

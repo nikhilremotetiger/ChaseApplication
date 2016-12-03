@@ -24,5 +24,7 @@
 - (instancetype)initWithCustomInput:(NSString *) userInput
                        withDelegate:(id<DownloaderDelegate>) delegate;
 
+- (instancetype)initWithLocation:(CLLocation *) location
+                    withDelegate:(id<DownloaderDelegate>) delegate;
 
 @end
